@@ -1,0 +1,40 @@
+                    GNU AFFERO GENERAL PUBLIC LICENSE
+                       Version 3, 19 November 2007
+
+ Copyright (C) 2026 Kresna Sucandra
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+---
+
+ADDITIONAL TERMS (Section 13 clarification for medstack):
+
+The medstack software — comprising the qa-core Rust library, identity-verification
+adapter crate, ingestion/ETL tooling, and web client — is licensed under AGPL-3.0.
+
+If you modify and run medstack as a network service (including but not limited to:
+hosting a Q&A instance, offering medstack-based APIs, or deploying a derivative
+as a web application), you must:
+
+1. Disclose the modified source code to all users of your network service
+2. Make the source code available under the same AGPL-3.0 license
+3. Retain this notice and all copyright attributions
+
+This is the network-copyleft provision (AGPL §13). It ensures that improvements
+to medstack made by a network operator are shared back to the community.
+
+---
+
+The *content corpus* (user-generated questions, answers, votes, imported from
+licensed sources) is licensed separately under CC BY-SA 4.0. See LICENSE-CONTENT.md.
