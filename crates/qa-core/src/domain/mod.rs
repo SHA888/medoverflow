@@ -2,3 +2,4 @@
 
 pub mod body;
 pub mod id;
+pub mod tag;

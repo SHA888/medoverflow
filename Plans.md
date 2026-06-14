@@ -34,7 +34,7 @@ Created: 2026-06-13
 |------|---------|-----|---------|--------|
 | 1.1.1 | Create `QuestionId`, `AnswerId`, `UserId` newtypes | Newtypes defined in qa-core, exhaustive pattern match enforced, type-safe constructors | Phase 0 | cc:done [001c288] |
 | 1.1.2 | Create `Body` value object (non-empty, parsed) | `Body` type makes empty body unrepresentable; parser rejects empty/whitespace-only strings | 1.1.1 | cc:done [e63eebf] |
-| 1.1.3 | Create `Tag` with date and jurisdiction facets | `Tag` enum includes `date` (YYYY-MM-DD) and `jurisdiction` fields; parser validates format | 1.1.1 | cc:todo |
+| 1.1.3 | Create `Tag` with date and jurisdiction facets | `Tag` enum includes `date` (YYYY-MM-DD) and `jurisdiction` fields; parser validates format | 1.1.1 | cc:done [pending] |
 | 1.1.4 | Create `License` enum (CcBySa4, CcBy4, Native, LinkOnly) | Exhaustive enum with no catch-all; unknown license ⇒ parse error; compiler prevents catch-all | 1.1.1 | cc:todo |
 | 1.2.1 | Create `VerifiedCredential` opaque token (private constructor) | Constructor private to identity-verification crate; trybuild compile-fail test asserts qa-core cannot construct one | 1.1.1 | cc:todo |
 | 1.2.2 | Add `scope` (Clinical/Engineering/Research) and `expiry` to `VerifiedCredential` | Scope and expiry are first-class fields; typestate enforces valid lifecycle | 1.2.1 | cc:todo |
