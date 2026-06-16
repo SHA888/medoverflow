@@ -7,8 +7,21 @@
 //! This enforces the architectural rule: only ports point outward; the domain logic
 //! itself has zero outward dependencies.
 
-use crate::domain::id::{ContentId, UserId};
+use crate::domain::id::{AnswerId, ContentId, QuestionId, UserId};
 use crate::domain::license::License;
+
+/// Representation of a content change for indexing.
+///
+/// This enum allows the search system to distinguish between questions and answers
+/// when receiving change notifications. The search index tracks both types separately
+/// to support type-specific queries and ranking.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IndexableContent {
+    /// A question has been created, modified, or deleted.
+    Question(QuestionId),
+    /// An answer has been created, modified, or deleted.
+    Answer(AnswerId),
+}
 
 /// Port for credential verification.
 ///
@@ -72,6 +85,39 @@ pub trait ContentSourcePort {
     /// - Assigning licenses to native content based on platform policy
     /// - Never returning an unknown license (compile-fail test enforces this)
     fn source_license(&self, content_id: ContentId) -> License;
+}
+
+/// Port for search index updates.
+///
+/// This port defines how qa-core notifies the search system when questions or answers
+/// are created, modified, or deleted. The search crate implements this port as a
+/// read-side projection that stays synchronized with the qa-core write side.
+///
+/// This separation enables:
+/// - Independent scaling of search indexing from the core domain logic
+/// - Different storage backends for the search index (Elasticsearch, SQLite FTS, etc)
+/// - Eventual consistency: the search index can lag behind the core domain
+/// - Decoupled failure domains: if search indexing fails, it doesn't crash the domain
+///
+/// Implementations must:
+/// - Accept notifications for questions and answers (exhaustive enum enforces this)
+/// - Update the search index to reflect the new state
+/// - Be idempotent: receiving the same notification twice must be safe
+/// - Handle both creation and modification (the port does not distinguish; indexers can decide)
+pub trait SearchIndexPort {
+    /// Notify the search index that content has changed.
+    ///
+    /// # Arguments
+    /// - `content`: The question or answer that changed (created, modified, or deleted)
+    ///
+    /// # Implementation notes
+    /// Implementers (search crate) are responsible for:
+    /// - Updating full-text indexes
+    /// - Updating tag facets
+    /// - Updating jurisdiction and date facets
+    /// - Handling deletions (may store deletion markers instead of removing entirely)
+    /// - Being idempotent: if the same content notification arrives twice, the result must be the same
+    fn notify_content_changed(&self, content: IndexableContent);
 }
 
 #[cfg(test)]
@@ -156,5 +202,75 @@ mod tests {
     fn mock_content_port_panics_for_unlicensed_content() {
         let port = MockContentSourcePort::new(HashMap::new());
         let _ = port.source_license(ContentId::new(999));
+    }
+
+    /// Mock search index port for testing qa-core logic.
+    #[derive(Clone)]
+    struct MockSearchIndexPort {
+        indexed_content: std::sync::Arc<std::sync::Mutex<Vec<IndexableContent>>>,
+    }
+
+    impl MockSearchIndexPort {
+        fn new() -> Self {
+            MockSearchIndexPort {
+                indexed_content: std::sync::Arc::new(std::sync::Mutex::new(Vec::new())),
+            }
+        }
+
+        fn get_indexed_content(&self) -> Vec<IndexableContent> {
+            self.indexed_content.lock().unwrap().clone()
+        }
+    }
+
+    impl SearchIndexPort for MockSearchIndexPort {
+        fn notify_content_changed(&self, content: IndexableContent) {
+            self.indexed_content.lock().unwrap().push(content);
+        }
+    }
+
+    #[test]
+    fn mock_search_port_records_question_changes() {
+        let port = MockSearchIndexPort::new();
+        let q1 = IndexableContent::Question(QuestionId::new(1));
+        let q2 = IndexableContent::Question(QuestionId::new(2));
+
+        port.notify_content_changed(q1);
+        port.notify_content_changed(q2);
+
+        let indexed = port.get_indexed_content();
+        assert_eq!(indexed.len(), 2);
+        assert_eq!(indexed[0], q1);
+        assert_eq!(indexed[1], q2);
+    }
+
+    #[test]
+    fn mock_search_port_records_answer_changes() {
+        let port = MockSearchIndexPort::new();
+        let a1 = IndexableContent::Answer(AnswerId::new(1));
+        let a2 = IndexableContent::Answer(AnswerId::new(3));
+
+        port.notify_content_changed(a1);
+        port.notify_content_changed(a2);
+
+        let indexed = port.get_indexed_content();
+        assert_eq!(indexed.len(), 2);
+        assert_eq!(indexed[0], a1);
+        assert_eq!(indexed[1], a2);
+    }
+
+    #[test]
+    fn mock_search_port_distinguishes_questions_and_answers() {
+        let port = MockSearchIndexPort::new();
+        let q = IndexableContent::Question(QuestionId::new(1));
+        let a = IndexableContent::Answer(AnswerId::new(1));
+
+        port.notify_content_changed(q);
+        port.notify_content_changed(a);
+
+        let indexed = port.get_indexed_content();
+        assert_eq!(indexed.len(), 2);
+        assert_eq!(indexed[0], q);
+        assert_eq!(indexed[1], a);
+        assert_ne!(indexed[0], indexed[1]);
     }
 }
