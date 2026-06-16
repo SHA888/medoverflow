@@ -206,7 +206,7 @@ fn days_in_month(year: u16, month: u8) -> u8 {
 
 /// Whether `year` is a leap year in the proleptic Gregorian calendar.
 fn is_leap_year(year: u16) -> bool {
-    (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
+    (year.is_multiple_of(4) && !year.is_multiple_of(100)) || year.is_multiple_of(400)
 }
 
 /// Error when parsing a Date.

@@ -15,6 +15,7 @@ use std::marker::PhantomData;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::SystemTime;
 
+#[allow(dead_code)]
 static CREDENTIAL_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// Error when constructing a VerifiedCredential.
@@ -109,6 +110,7 @@ impl VerifiedCredential<Issued> {
     /// # Errors
     ///
     /// Returns `CredentialError::EmptyUserId` if user_id is empty or whitespace-only.
+    #[allow(dead_code)]
     pub(crate) fn issue(
         user_id: String,
         scope: CredentialScope,
@@ -249,7 +251,9 @@ mod tests {
     #[test]
     fn credential_transitions_through_states() {
         let expiry = SystemTime::now() + std::time::Duration::from_secs(3600);
-        let issued = VerifiedCredential::issue("user-123".to_string(), CredentialScope::Clinical, expiry).unwrap();
+        let issued =
+            VerifiedCredential::issue("user-123".to_string(), CredentialScope::Clinical, expiry)
+                .unwrap();
         let active = issued.activate();
         assert_eq!(active.user_id(), "user-123");
         assert_eq!(active.scope(), CredentialScope::Clinical);
@@ -275,18 +279,20 @@ mod tests {
     #[test]
     fn credential_expiry_not_expired_in_future() {
         let expiry = SystemTime::now() + std::time::Duration::from_secs(3600);
-        let cred = VerifiedCredential::issue("user".to_string(), CredentialScope::Engineering, expiry)
-            .unwrap()
-            .activate();
+        let cred =
+            VerifiedCredential::issue("user".to_string(), CredentialScope::Engineering, expiry)
+                .unwrap()
+                .activate();
         assert!(!cred.is_expired());
     }
 
     #[test]
     fn credential_expiry_is_expired_in_past() {
         let expiry = SystemTime::now() - std::time::Duration::from_secs(1);
-        let cred = VerifiedCredential::issue("user".to_string(), CredentialScope::Engineering, expiry)
-            .unwrap()
-            .activate();
+        let cred =
+            VerifiedCredential::issue("user".to_string(), CredentialScope::Engineering, expiry)
+                .unwrap()
+                .activate();
         assert!(cred.is_expired());
     }
 }
