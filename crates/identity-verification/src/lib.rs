@@ -103,6 +103,11 @@ pub struct VerifiedCredential<S: CredentialState = Active> {
 
 impl<S: CredentialState> VerifiedCredential<S> {
     /// Helper to transition between typestate markers by reconstructing the credential.
+    ///
+    /// Explicitly copies all credential fields (id, user_id, scope, expiry) to ensure they
+    /// are preserved across state changes. Rust's exhaustiveness checking requires all fields
+    /// in the struct literal, so adding a field to VerifiedCredential will cause a compile error
+    /// here—preventing silent data loss if transition() is not updated.
     fn transition<T: CredentialState>(self) -> VerifiedCredential<T> {
         VerifiedCredential {
             id: self.id,
@@ -134,6 +139,9 @@ impl VerifiedCredential<Issued> {
             return Err(CredentialError::EmptyUserId);
         }
 
+        // SeqCst ensures a total ordering of credential issuance across all threads.
+        // This is necessary at a security boundary: audit trails and authority weight
+        // calculations must be able to rely on consistent ordering of credentials.
         let counter = CREDENTIAL_COUNTER.fetch_add(1, Ordering::SeqCst);
         let id = format!("cred-{}", counter);
         Ok(VerifiedCredential {
