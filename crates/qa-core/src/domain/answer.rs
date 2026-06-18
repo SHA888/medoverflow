@@ -66,6 +66,30 @@ impl Answer {
         }
     }
 
+    /// Reconstruct an answer from storage, with current body, revision history, and votes.
+    /// Used by persistence adapters to restore state from durable storage.
+    pub fn from_stored(
+        id: AnswerId,
+        current_body: Body,
+        author_id: UserId,
+        created_at: SystemTime,
+        license: License,
+        credential: Option<AuthoritySnapshot>,
+        revisions: Vec<Revision>,
+        votes: Vec<CastVote>,
+    ) -> Self {
+        Answer {
+            id,
+            current_body,
+            author_id,
+            created_at,
+            license,
+            credential,
+            revisions,
+            votes,
+        }
+    }
+
     /// Access the answer's unique identifier.
     pub fn id(&self) -> AnswerId {
         self.id

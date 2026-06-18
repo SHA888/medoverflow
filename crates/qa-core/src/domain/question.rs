@@ -111,6 +111,28 @@ impl Question {
         }
     }
 
+    /// Reconstruct a question from storage, with current body and revision history.
+    /// Used by persistence adapters to restore state from durable storage.
+    pub fn from_stored(
+        id: QuestionId,
+        current_body: Body,
+        author_id: UserId,
+        created_at: SystemTime,
+        license: License,
+        tags: Vec<Tag>,
+        revisions: Vec<Revision>,
+    ) -> Self {
+        Question {
+            id,
+            current_body,
+            author_id,
+            created_at,
+            license,
+            tags,
+            revisions,
+        }
+    }
+
     /// Access the question's unique identifier.
     pub fn id(&self) -> QuestionId {
         self.id
