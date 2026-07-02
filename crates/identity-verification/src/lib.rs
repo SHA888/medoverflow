@@ -19,6 +19,7 @@
 //! once `as_of` is past expiry).
 
 pub mod generic_adapter;
+pub mod indonesia_adapter;
 
 use std::fmt;
 use std::marker::PhantomData;
