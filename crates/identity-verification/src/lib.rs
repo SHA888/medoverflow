@@ -20,6 +20,7 @@
 
 pub mod generic_adapter;
 pub mod indonesia_adapter;
+pub mod us_npi_adapter;
 
 use std::fmt;
 use std::marker::PhantomData;
