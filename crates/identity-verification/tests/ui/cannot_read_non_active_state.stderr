@@ -1,0 +1,5 @@
+error[E0599]: no method named `scope` found for struct `VerifiedCredential<S>` in the current scope
+  --> tests/ui/cannot_read_non_active_state.rs:20:18
+   |
+20 |     let _ = cred.scope();
+   |                  ^^^^^ private field, not a method

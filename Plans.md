@@ -64,7 +64,7 @@ Created: 2026-06-13
 | 2.2.1 | Create generic identity-verification adapter (ORCID + institutional email + manual review) | Adapter verifies ORCID, institutional email domain, manual review flag; issues VerifiedCredential with scope and expiry | - | cc:done [586058b] |
 | 2.2.2 | Design Indonesia adapter (STR/KKI) — stub behind feature flag | Design document and stub implementation; feature flag controls activation; no external calls yet | - | cc:done [9fd51e8] |
 | 2.2.3 | Design US adapter (NPI) — stub behind feature flag | Design document and stub implementation; feature flag controls activation; no external calls yet | - | cc:done [42ad87d] |
-| 2.2.4 | Implement credential expiry/lifecycle as typestate | Typestate prevents reading expired credentials; state machine: Issued → Active → Expired (linear) | 2.2.1 | cc:todo |
+| 2.2.4 | Implement credential expiry/lifecycle as typestate | Typestate prevents reading expired credentials; state machine: Issued → Active → Expired (linear) | 2.2.1 | cc:wip |
 | 2.3 | Wire `CredentialPort` impl into qa-core via dependency injection | qa-core receives CredentialPort implementation at startup; answer authority weight computed via port; no hard dependency on identity-verification | Phase 1, 2.2.1, 2.2.4 | cc:todo |
 
 **M2 exit:** An answer can be persisted with or without verified credentials; works on SQLite and Postgres; badges carry scope+freshness weight.

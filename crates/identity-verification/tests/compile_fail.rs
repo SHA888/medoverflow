@@ -12,3 +12,14 @@ fn cannot_call_private_issue_constructor() {
     let t = trybuild::TestCases::new();
     t.compile_fail("tests/ui/cannot_call_issue.rs");
 }
+
+/// Compile-fail test for the read-typestate boundary (task 2.2.4).
+///
+/// Proves generic code cannot read credential fields (scope, user_id, etc.)
+/// without the concrete `Active` state — see `tests/ui/cannot_read_non_active_state.rs`
+/// for why this doesn't need to construct an Issued/Expired value directly.
+#[test]
+fn cannot_read_credential_without_active_state() {
+    let t = trybuild::TestCases::new();
+    t.compile_fail("tests/ui/cannot_read_non_active_state.rs");
+}

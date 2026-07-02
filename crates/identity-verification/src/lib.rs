@@ -17,6 +17,12 @@
 //! (`activate` refuses already-expired credentials, `expire` refuses
 //! still-valid ones) and re-checked at use (`authority_weight` returns 0.0
 //! once `as_of` is past expiry).
+//!
+//! This lifecycle satisfies M2 task 2.2.4's DoD (typestate prevents reading
+//! expired credentials; linear Issued → Active → Expired state machine). It
+//! was introduced in M1.2.2, before the M2 phase existed, and 2.2.1's
+//! `generic_adapter` already builds on it — 2.2.4 is recorded here as done
+//! against that pre-existing design rather than new code.
 
 pub mod generic_adapter;
 pub mod indonesia_adapter;
