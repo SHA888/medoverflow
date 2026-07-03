@@ -10,24 +10,24 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## M0 — Gate & foundations (v0.0.x) — BLOCKS ALL CODE
 
-- [ ] **0.1 Settle content LICENSE** (README options A/B/C)
-  - [ ] 0.1.1 Decide native content license (A: CC BY-SA 4.0 | B: CC BY 4.0 + quarantine)
-  - [ ] 0.1.2 Reject C (CC BY-NC) explicitly — incompatible with SE mirroring; record rationale
-  - [ ] 0.1.3 Decide code license (AGPL-3.0 vs Apache-2.0 vs MIT); record rationale
-  - [ ] 0.1.4 Write `LICENSE` (code) and `LICENSE-CONTENT.md` (corpus)
-- [ ] **0.2 Legal/attribution spec**
-  - [ ] 0.2.1 Per-source license matrix (SE = CC BY-SA, Biostars = CC BY, FHIR Zulip = link-only)
-  - [ ] 0.2.2 Attribution rendering contract (source + author + license, non-strippable)
-  - [ ] 0.2.3 If Option B: quarantine-partition rules for SA content
-- [ ] **0.3 Repo & CI skeleton** (no domain code yet)
-  - [ ] 0.3.1 Cargo workspace stub; `cargo install cargo-skill`
-  - [ ] 0.3.2 pnpm workspace stub
-  - [ ] 0.3.3 uv project stub for ingestion
-  - [ ] 0.3.4 CI: fmt, clippy `-D warnings`, `tsc --noEmit`+ESLint, ruff+mypy, `cargo-semver-checks`, `cargo-deny`
-  - [ ] 0.3.5 Architecture test harness (asserts qa-core has no outward deps)
-- [ ] **0.4 On-topic / scope definition** (the patient-safety boundary, in prose)
-  - [ ] 0.4.1 Draft on-topic rules (clinical software/informatics/data IN; patient advice OUT)
-  - [ ] 0.4.2 Badge-semantics copy (engineering authority ≠ clinical endorsement)
+- [x] **0.1 Settle content LICENSE** (README options A/B/C)
+  - [x] 0.1.1 Decide native content license (A: CC BY-SA 4.0 | B: CC BY 4.0 + quarantine)
+  - [x] 0.1.2 Reject C (CC BY-NC) explicitly — incompatible with SE mirroring; record rationale
+  - [x] 0.1.3 Decide code license (AGPL-3.0 vs Apache-2.0 vs MIT); record rationale
+  - [x] 0.1.4 Write `LICENSE` (code) and `LICENSE-CONTENT.md` (corpus)
+- [x] **0.2 Legal/attribution spec**
+  - [x] 0.2.1 Per-source license matrix (SE = CC BY-SA, Biostars = CC BY, FHIR Zulip = link-only)
+  - [x] 0.2.2 Attribution rendering contract (source + author + license, non-strippable)
+  - [x] 0.2.3 If Option B: quarantine-partition rules for SA content
+- [x] **0.3 Repo & CI skeleton** (no domain code yet)
+  - [x] 0.3.1 Cargo workspace stub; `cargo install cargo-skill`
+  - [x] 0.3.2 pnpm workspace stub
+  - [x] 0.3.3 uv project stub for ingestion
+  - [x] 0.3.4 CI: fmt, clippy `-D warnings`, `tsc --noEmit`+ESLint, ruff+mypy, `cargo-semver-checks`, `cargo-deny`
+  - [x] 0.3.5 Architecture test harness (asserts qa-core has no outward deps)
+- [x] **0.4 On-topic / scope definition** (the patient-safety boundary, in prose)
+  - [x] 0.4.1 Draft on-topic rules (clinical software/informatics/data IN; patient advice OUT)
+  - [x] 0.4.2 Badge-semantics copy (engineering authority ≠ clinical endorsement)
 
 **M0 exit criterion:** both licenses chosen and written; CI is green on an empty workspace; scope doc drafted.
 
@@ -35,28 +35,28 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## M1 — qa-core domain, library-only (v0.1.0)
 
-- [ ] **1.1 Core value objects (Parse-Don't-Validate)**
-  - [ ] 1.1.1 `QuestionId`/`AnswerId`/`UserId` newtypes
-  - [ ] 1.1.2 `Body` (non-empty, parsed) — empty body unrepresentable
-  - [ ] 1.1.3 `Tag` with `date` and `jurisdiction` facets
-  - [ ] 1.1.4 `License` enum (`CcBySa4`,`CcBy4`,`Native`,`LinkOnly`); unknown ⇒ parse error
-- [ ] **1.2 `VerifiedCredential` value object**
-  - [ ] 1.2.1 Opaque token; constructor private to verification crate (compile-fail test via trybuild)
-  - [ ] 1.2.2 `scope` (Clinical/Engineering/Research) + `expiry`
-  - [ ] 1.2.3 `authority_weight()` as pure fn of (scope, freshness)
-- [ ] **1.3 Aggregates**
-  - [ ] 1.3.1 `Question` with revision history
-  - [ ] 1.3.2 `Answer` with revision history + optional credential weight
-  - [ ] 1.3.3 `Vote` incl. `StillValid` variant (perishability signal)
-- [ ] **1.4 Ports (traits) defined in qa-core**
-  - [ ] 1.4.1 `CredentialPort`
-  - [ ] 1.4.2 `ContentSourcePort`
-  - [ ] 1.4.3 `SearchIndexPort`
-  - [ ] 1.4.4 `PersistencePort`
-- [ ] **1.5 Invariant tests**
-  - [ ] 1.5.1 unknown-license-fails-to-parse
-  - [ ] 1.5.2 core-cannot-forge-credential (trybuild compile-fail)
-  - [ ] 1.5.3 architecture test: no outward deps from qa-core
+- [x] **1.1 Core value objects (Parse-Don't-Validate)**
+  - [x] 1.1.1 `QuestionId`/`AnswerId`/`UserId` newtypes
+  - [x] 1.1.2 `Body` (non-empty, parsed) — empty body unrepresentable
+  - [x] 1.1.3 `Tag` with `date` and `jurisdiction` facets
+  - [x] 1.1.4 `License` enum (`CcBySa4`,`CcBy4`,`Native`,`LinkOnly`); unknown ⇒ parse error
+- [x] **1.2 `VerifiedCredential` value object**
+  - [x] 1.2.1 Opaque token; constructor private to verification crate (compile-fail test via trybuild)
+  - [x] 1.2.2 `scope` (Clinical/Engineering/Research) + `expiry`
+  - [x] 1.2.3 `authority_weight()` as pure fn of (scope, freshness)
+- [x] **1.3 Aggregates**
+  - [x] 1.3.1 `Question` with revision history
+  - [x] 1.3.2 `Answer` with revision history + optional credential weight
+  - [x] 1.3.3 `Vote` incl. `StillValid` variant (perishability signal)
+- [x] **1.4 Ports (traits) defined in qa-core**
+  - [x] 1.4.1 `CredentialPort`
+  - [x] 1.4.2 `ContentSourcePort`
+  - [x] 1.4.3 `SearchIndexPort`
+  - [x] 1.4.4 `PersistencePort`
+- [x] **1.5 Invariant tests**
+  - [x] 1.5.1 unknown-license-fails-to-parse
+  - [x] 1.5.2 core-cannot-forge-credential (trybuild compile-fail)
+  - [x] 1.5.3 architecture test: no outward deps from qa-core
 
 **M1 exit:** `qa-core` compiles as a library with zero outward deps; invariants CI-enforced. No binary, no DB.
 
