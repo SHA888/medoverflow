@@ -64,15 +64,15 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## M2 — Persistence + identity-verification (v0.2.0)
 
-- [ ] **2.1 PersistencePort adapters**
-  - [ ] 2.1.1 SQLite adapter (constrained single-binary path)
-  - [ ] 2.1.2 Postgres adapter (hosted path)
-  - [ ] 2.1.3 Shared conformance test-suite run against both
-- [ ] **2.2 identity-verification crate**
-  - [ ] 2.2.1 Generic adapter (ORCID + institutional email + manual review)
-  - [ ] 2.2.2 Indonesia adapter (STR/KKI) — design + stub behind feature flag
-  - [ ] 2.2.3 US adapter (NPI) — design + stub behind feature flag
-  - [ ] 2.2.4 Credential expiry/lifecycle as typestate
+- [x] **2.1 PersistencePort adapters**
+  - [x] 2.1.1 SQLite adapter (constrained single-binary path)
+  - [x] 2.1.2 Postgres adapter (hosted path)
+  - [x] 2.1.3 Shared conformance test-suite run against both
+- [x] **2.2 identity-verification crate**
+  - [x] 2.2.1 Generic adapter (ORCID + institutional email + manual review)
+  - [x] 2.2.2 Indonesia adapter (STR/KKI) — design + stub behind feature flag
+  - [x] 2.2.3 US adapter (NPI) — design + stub behind feature flag
+  - [x] 2.2.4 Credential expiry/lifecycle as typestate
 - [ ] **2.3 Wire `CredentialPort` impl into qa-core via DI**
 
 **M2 exit:** an answer can be persisted and, if its author is verified, carry a badge+weight; works on SQLite and Postgres.
