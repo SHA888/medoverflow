@@ -9,9 +9,10 @@ US clinicians are identified by an **NPI** (National Provider Identifier), a
 10-digit number issued by CMS (Centers for Medicare & Medicaid Services)
 through NPPES (National Plan and Provider Enumeration System). A
 jurisdiction-specific adapter would let MedOverflow verify US clinical
-licenses by NPI, the same way [[Indonesia's STR/KKI adapter]] verifies
-Indonesian licenses. This task is scoped to the *design and stub* only —
-see "Deferred: real verification" below for why.
+licenses by NPI, the same way the Indonesia STR/KKI adapter (task 2.2.2,
+see `docs/JURISDICTION-ADAPTER-INDONESIA.md`) verifies Indonesian licenses.
+This task is scoped to the *design and stub* only — see "Deferred: real
+verification" below for why.
 
 This mirrors the CLAUDE.md deferred-design note: "Advanced jurisdiction
 adapters (NPI, STR) — only stubs in M2; full implementation only if pilot

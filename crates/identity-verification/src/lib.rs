@@ -26,6 +26,7 @@
 
 pub mod generic_adapter;
 pub mod indonesia_adapter;
+pub mod stub_jurisdiction_adapter;
 pub mod us_npi_adapter;
 
 use std::fmt;
