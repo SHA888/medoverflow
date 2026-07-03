@@ -62,8 +62,8 @@ Created: 2026-06-13
 | 2.1.2 | Create Postgres adapter for `PersistencePort` | Adapter: question/answer/vote persistence to Postgres; same schema; all M1 aggregates round-trip | 2.1.1 | cc:done [a2cc3d2] |
 | 2.1.3 | Run conformance test suite against both adapters | Single test suite runs against SQLite and Postgres in parallel; all tests pass on both | 2.1.1, 2.1.2 | cc:done [b905dc1] |
 | 2.2.1 | Create generic identity-verification adapter (ORCID + institutional email + manual review) | Adapter verifies ORCID, institutional email domain, manual review flag; issues VerifiedCredential with scope and expiry | - | cc:done [586058b] |
-| 2.2.2 | Design Indonesia adapter (STR/KKI) — stub behind feature flag | Design document and stub implementation; feature flag controls activation; no external calls yet | - | cc:done [9fd51e8] |
-| 2.2.3 | Design US adapter (NPI) — stub behind feature flag | Design document and stub implementation; feature flag controls activation; no external calls yet | - | cc:done [42ad87d] |
+| 2.2.2 | Design Indonesia adapter (STR/KKI) — stub behind feature flag | Design document and stub implementation; feature flag controls activation; no external calls yet | - | cc:done [89e1c57] |
+| 2.2.3 | Design US adapter (NPI) — stub behind feature flag | Design document and stub implementation; feature flag controls activation; no external calls yet | - | cc:done [89e1c57] |
 | 2.2.4 | Implement credential expiry/lifecycle as typestate | Typestate prevents reading expired credentials; state machine: Issued → Active → Expired (linear) | 2.2.1 | cc:done [f11f20f] |
 | 2.3 | Wire `CredentialPort` impl into qa-core via dependency injection | qa-core receives CredentialPort implementation at startup; answer authority weight computed via port; no hard dependency on identity-verification | Phase 1, 2.2.1, 2.2.4 | cc:todo |
 
