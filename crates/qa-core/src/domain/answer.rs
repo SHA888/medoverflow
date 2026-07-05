@@ -9,6 +9,7 @@ use crate::domain::body::Body;
 use crate::domain::credential::AuthoritySnapshot;
 use crate::domain::id::{AnswerId, UserId};
 use crate::domain::license::License;
+use crate::domain::ports::CredentialPort;
 use crate::domain::question::{Revision, RevisionError};
 use crate::domain::vote::{CastVote, Vote};
 use std::time::SystemTime;
@@ -64,6 +65,27 @@ impl Answer {
             revisions: Vec::new(),
             votes: Vec::new(),
         }
+    }
+
+    /// Create a new answer, computing its authority snapshot via a `CredentialPort`.
+    ///
+    /// This is the dependency-injection seam for wiring credential verification
+    /// into qa-core: the caller (a composition root) injects a concrete
+    /// `CredentialPort` implementation (e.g. identity-verification's
+    /// `GenericAdapter`) as a trait object. qa-core never depends on
+    /// identity-verification itself — it only calls the port and stores the
+    /// `AuthoritySnapshot` it returns, exactly as `Answer::new` would with a
+    /// snapshot obtained any other way.
+    pub fn author_with_port(
+        port: &dyn CredentialPort,
+        id: AnswerId,
+        initial_body: Body,
+        author_id: UserId,
+        created_at: SystemTime,
+        license: License,
+    ) -> Self {
+        let credential = port.verify_credential(author_id);
+        Answer::new(id, initial_body, author_id, created_at, license, credential)
     }
 
     /// Reconstruct an answer from storage, with current body, revision history, and votes.
@@ -282,6 +304,58 @@ mod tests {
         let snap = answer.credential().expect("authority present");
         assert_eq!(snap.scope(), CredentialScope::Engineering);
         assert_eq!(snap.weight().value(), 0.9);
+    }
+
+    /// Verified-users-only mock port, mirroring `ports::tests::MockCredentialPort`.
+    struct MockCredentialPort {
+        verified: std::collections::HashSet<u64>,
+    }
+
+    impl CredentialPort for MockCredentialPort {
+        fn verify_credential(&self, user_id: UserId) -> Option<AuthoritySnapshot> {
+            self.verified
+                .contains(&user_id.inner())
+                .then(sample_authority)
+        }
+    }
+
+    #[test]
+    fn author_with_port_captures_snapshot_for_verified_user() {
+        let port = MockCredentialPort {
+            verified: std::collections::HashSet::from([42]),
+        };
+        let answer = Answer::author_with_port(
+            &port,
+            AnswerId::new(10),
+            make_test_body("Answer from a verified author"),
+            UserId::new(42),
+            SystemTime::now(),
+            License::Native,
+        );
+
+        assert!(answer.has_credential());
+        assert_eq!(
+            *answer.credential().expect("authority present"),
+            sample_authority()
+        );
+    }
+
+    #[test]
+    fn author_with_port_leaves_credential_none_for_unverified_user() {
+        let port = MockCredentialPort {
+            verified: std::collections::HashSet::from([42]),
+        };
+        let answer = Answer::author_with_port(
+            &port,
+            AnswerId::new(11),
+            make_test_body("Answer from an unverified author"),
+            UserId::new(999),
+            SystemTime::now(),
+            License::Native,
+        );
+
+        assert!(!answer.has_credential());
+        assert_eq!(answer.credential(), None);
     }
 
     #[test]

@@ -73,7 +73,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
   - [x] 2.2.2 Indonesia adapter (STR/KKI) — design + stub behind feature flag
   - [x] 2.2.3 US adapter (NPI) — design + stub behind feature flag
   - [x] 2.2.4 Credential expiry/lifecycle as typestate
-- [ ] **2.3 Wire `CredentialPort` impl into qa-core via DI**
+- [x] **2.3 Wire `CredentialPort` impl into qa-core via DI**
 
 **M2 exit:** an answer can be persisted and, if its author is verified, carry a badge+weight; works on SQLite and Postgres.
 
