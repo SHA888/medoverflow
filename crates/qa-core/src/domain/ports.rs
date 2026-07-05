@@ -291,32 +291,11 @@ mod tests {
         )
     }
 
-    /// Mock credential port for testing qa-core logic.
-    struct MockCredentialPort {
-        verified_users: std::collections::HashSet<u64>,
-    }
-
-    impl MockCredentialPort {
-        fn new(verified_users: Vec<u64>) -> Self {
-            MockCredentialPort {
-                verified_users: verified_users.into_iter().collect(),
-            }
-        }
-    }
-
-    impl CredentialPort for MockCredentialPort {
-        fn verify_credential(&self, user_id: UserId) -> Option<AuthoritySnapshot> {
-            if self.verified_users.contains(&user_id.inner()) {
-                Some(sample_authority())
-            } else {
-                None
-            }
-        }
-    }
+    use crate::domain::test_support::MockCredentialPort;
 
     #[test]
     fn mock_port_returns_none_for_unverified() {
-        let port = MockCredentialPort::new(vec![1, 2, 3]);
+        let port = MockCredentialPort::new(vec![1, 2, 3], sample_authority());
         assert_eq!(
             port.verify_credential(UserId::new(1)),
             Some(sample_authority())
@@ -326,7 +305,7 @@ mod tests {
 
     #[test]
     fn mock_port_verifies_users() {
-        let port = MockCredentialPort::new(vec![42, 100]);
+        let port = MockCredentialPort::new(vec![42, 100], sample_authority());
         assert!(port.verify_credential(UserId::new(42)).is_some());
         assert!(port.verify_credential(UserId::new(100)).is_some());
         assert_eq!(port.verify_credential(UserId::new(50)), None);

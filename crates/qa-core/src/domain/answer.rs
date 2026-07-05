@@ -306,24 +306,11 @@ mod tests {
         assert_eq!(snap.weight().value(), 0.9);
     }
 
-    /// Verified-users-only mock port, mirroring `ports::tests::MockCredentialPort`.
-    struct MockCredentialPort {
-        verified: std::collections::HashSet<u64>,
-    }
-
-    impl CredentialPort for MockCredentialPort {
-        fn verify_credential(&self, user_id: UserId) -> Option<AuthoritySnapshot> {
-            self.verified
-                .contains(&user_id.inner())
-                .then(sample_authority)
-        }
-    }
+    use crate::domain::test_support::MockCredentialPort;
 
     #[test]
     fn author_with_port_captures_snapshot_for_verified_user() {
-        let port = MockCredentialPort {
-            verified: std::collections::HashSet::from([42]),
-        };
+        let port = MockCredentialPort::new(vec![42], sample_authority());
         let answer = Answer::author_with_port(
             &port,
             AnswerId::new(10),
@@ -342,9 +329,7 @@ mod tests {
 
     #[test]
     fn author_with_port_leaves_credential_none_for_unverified_user() {
-        let port = MockCredentialPort {
-            verified: std::collections::HashSet::from([42]),
-        };
+        let port = MockCredentialPort::new(vec![42], sample_authority());
         let answer = Answer::author_with_port(
             &port,
             AnswerId::new(11),

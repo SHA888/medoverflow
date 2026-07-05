@@ -8,4 +8,6 @@ pub mod license;
 pub mod ports;
 pub mod question;
 pub mod tag;
+#[cfg(test)]
+pub(crate) mod test_support;
 pub mod vote;
