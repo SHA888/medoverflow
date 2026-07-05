@@ -90,11 +90,22 @@ Created: 2026-06-13
 
 | Task | Content | DoD | Depends | Status |
 |------|---------|-----|---------|--------|
-| 4.1 | Implement `SearchIndexPort` (tag-facet + full-text; FTS or tsvector) | Port: index builder for questions/answers; query returns (content, score, facets); supports SQLite FTS or Postgres tsvector | Phase 3 | cc:todo |
-| 4.2 | Create read-side projection (no writes to qa-core) | Projection: separate tables/indexes for search; driven by `SearchIndexPort` notifications; qa-core remains write-only for domain logic | 4.1 | cc:todo |
-| 4.3 | Implement faceted query: tag × jurisdiction × date | Query API: filter by tag (string), jurisdiction (enum), date range; returns results sorted by authority weight + recency | 4.2 | cc:todo |
+| 4.1.1 | Wire `search` crate to qa-core's `SearchIndexPort` | `search` crate implements `SearchIndexPort`; depends on qa-core only (read-side); no write path back into qa-core | Phase 3 | cc:todo |
+| 4.1.2 | Define index document schema | Index doc carries: kind (Q/A), body text, tags, jurisdiction, date, license, author, authority weight | 4.1.1 | cc:todo |
+| 4.1.3 | Implement projection subscriber | `notify_content_changed(IndexableContent)` fetches the aggregate from persistence → upsert/delete index doc; idempotent on repeat notification | 4.1.1, 4.1.2 | cc:todo |
+| 4.1.4 | Implement backfill/reproject path | Full index rebuild from persistence; idempotent and resumable; produces identical index to the incremental path | 4.1.3 | cc:todo |
+| 4.2.1 | SQLite FTS5 full-text backend | Full-text backend on SQLite FTS5 (constrained single-binary path); indexes body + facets | 4.1.2 | cc:todo |
+| 4.2.2 | Postgres tsvector full-text backend | Full-text backend on Postgres tsvector (hosted path); Tantivy deferred + documented | 4.1.2 | cc:todo |
+| 4.2.3 | Shared conformance suite (both backends) | Single conformance suite runs against SQLite + Postgres; identical query results on both | 4.2.1, 4.2.2 | cc:todo |
+| 4.3.1 | Parsed query input | Query type parses term + tag/jurisdiction/date filters; illegal query unrepresentable (Parse-Don't-Validate) | 4.2.3 | cc:todo |
+| 4.3.2 | Facet counts | Query returns facet counts bucketed by tag × jurisdiction × date | 4.3.1 | cc:todo |
+| 4.3.3 | Staleness surfacing | Date/jurisdiction facets flag stale answers; surfaced in query results | 4.3.2 | cc:todo |
+| 4.3.4 | Deterministic ranking | Ranking = relevance × recency × authority weight; deterministic on same inputs; documented + tested | 4.3.1 | cc:todo |
+| 4.4.1 | Read models (DTOs) | qa-core aggregates → serializable read DTOs; projection performs no writes into qa-core | 4.1.1 | cc:todo |
+| 4.4.2 | Attribution non-strippable in read models | Every read model carries source+author+license+date+link; contract test fails if any stripped | 4.4.1 | cc:todo |
+| 4.4.3 | Architecture test extension | Test asserts `search` crate has zero write path into qa-core (read-side only) | 4.1.1 | cc:todo |
 
-**M4 exit:** Full-text search with tag/jurisdiction/date facets; results weighted by credential authority and freshness.
+**M4 exit:** content changes project into a dual-backend full-text index; faceted queries return tag×jurisdiction×date results that surface staleness; every mirrored result carries full attribution; search never writes to qa-core.
 
 ---
 
@@ -102,12 +113,22 @@ Created: 2026-06-13
 
 | Task | Content | DoD | Depends | Status |
 |------|---------|-----|---------|--------|
-| 5.1 | TS/pnpm client: ask, answer, vote, search | UI: ask form, answer form, vote buttons, search with facets; calls API | Phase 4 | cc:todo |
-| 5.2 | Add Zod/Valibot at every API edge; branded types for IDs | API response validation: Zod schema per endpoint; ID types branded (QuestionId, AnswerId, UserId); type-safe throughout | 5.1 | cc:todo |
-| 5.3 | Credential badge rendering with safety copy | Badge UI: credential indicator only on verified answers; copy: "Engineering authority on software questions, not medical advice" | 5.1 | cc:todo |
-| 5.4 | Attribution rendering for mirrored content | UI: every mirrored answer shows source (Stack Exchange, Biostars, etc), author, license inline; non-strippable | 5.1 | cc:todo |
+| 5.1.1 | Client scaffold in `web` | pnpm workspace scaffolded; packages mirror domain boundaries; `pnpm exec tsc --noEmit` green | Phase 4 | cc:todo |
+| 5.1.2 | Zod/Valibot at every I/O boundary | Schema validation on every request + response edge (Parse-Don't-Validate); invalid payload rejected at boundary | 5.1.1 | cc:todo |
+| 5.1.3 | Branded id + discriminated-union types | Ids branded (QuestionId/AnswerId/UserId); `License` + `CredentialScope` as discriminated unions / `as const` | 5.1.1 | cc:todo |
+| 5.1.4 | Typed API client | API client derived from read + write contracts; types flow end-to-end | 5.1.2, 5.1.3 | cc:todo |
+| 5.2.1 | Ask flow | Ask (create question) form → API; validated at edge | 5.1.4 | cc:todo |
+| 5.2.2 | Answer flow | Answer (create answer) form → API; validated at edge | 5.1.4 | cc:todo |
+| 5.2.3 | Vote flow incl. `StillValid` | Vote buttons Helpful/Unhelpful/StillValid; StillValid perishability signal wired | 5.1.4 | cc:todo |
+| 5.2.4 | Search + faceted browse | Search UI with tag × jurisdiction × date facets; calls the M4 query API | 5.1.4, 4.3.2 | cc:todo |
+| 5.3.1 | Badge component | Badge rendered from authority scope + weight, on verified answers only | 5.1.3 | cc:todo |
+| 5.3.2 | Non-dismissible safety copy | Copy: verification/engineering badge = software authority, NOT medical endorsement; non-dismissible | 5.3.1 | cc:todo |
+| 5.3.3 | Test: badge safety invariants | Test: badge never renders as clinical advice; expired credential → no active badge | 5.3.1, 5.3.2 | cc:todo |
+| 5.4.1 | Attribution component | Renders source + author + license + date + link inline; non-strippable | 5.1.1 | cc:todo |
+| 5.4.2 | Test: attribution completeness | Test: every mirrored item renders all five fields; missing field ⇒ test fail | 5.4.1 | cc:todo |
+| 5.4.3 | License-specific display | CC BY-SA / CC BY share-alike notice; `LinkOnly` renders link-out with no body copy | 5.4.1 | cc:todo |
 
-**M5 exit:** Minimal functional web client with credential badges and attribution.
+**M5 exit:** a user can ask/answer/vote/search from the web client; ids and payloads are branded + schema-validated at every edge; credential badges carry non-dismissible safety copy; mirrored content always shows full attribution.
 
 ---
 
@@ -115,12 +136,21 @@ Created: 2026-06-13
 
 | Task | Content | DoD | Depends | Status |
 |------|---------|-----|---------|--------|
-| 6.1 | Verify self-host single-binary (SQLite) end-to-end | Binary: single Rust executable, embeds SQLite schema, runs ask/answer/search without external DB | Phase 5 | cc:todo |
-| 6.2 | Finalize community guidelines (on-topic scope from 0.4) | Guidelines document: explicit rules for on-topic (clinical software/data/informatics), off-topic (patient advice), moderation examples | Phase 0, 6.1 | cc:todo |
-| 6.3 | Implement moderation tooling | Tooling: close/flag actions, patient-advice pattern detection, mod dashboard | 6.1 | cc:todo |
-| 6.4 | Open to community (after 6.1–6.3 complete) | Action: publish community links; bootstrap with M3 imported corpus; monitor initial adoption | 6.1, 6.2, 6.3 | cc:todo |
+| 6.1.1 | Composition-root binary | Single binary wires qa-core + persistence-sqlite + identity-verification + search via DI | Phase 5 | cc:todo |
+| 6.1.2 | SQLite-only single-binary build | Single Rust executable, embeds SQLite schema; no external services required | 6.1.1 | cc:todo |
+| 6.1.3 | End-to-end smoke test | Smoke path: ask → answer → verify → search → attribution render, all in-binary | 6.1.2 | cc:todo |
+| 6.1.4 | Release-profile CI green | `cargo-semver-checks` + `cargo-deny` green on the release profile | 6.1.2 | cc:todo |
+| 6.2.1 | Publish community guidelines | On-topic/scope (from 0.4) published as community guidelines | Phase 0, 6.1.1 | cc:todo |
+| 6.2.2 | Patient-advice-OUT boundary | Guidelines state the patient-advice-OUT boundary with worked examples | 6.2.1 | cc:todo |
+| 6.2.3 | Attribution-preservation policy | Contribution policy documents CC BY-SA share-alike obligations + attribution preservation | 6.2.1 | cc:todo |
+| 6.3.1 | Close/flag actions | Moderators can close/flag questions + answers | 6.1.1 | cc:todo |
+| 6.3.2 | Patient-advice rejection path | Scope-boundary enforcement: patient-advice content rejected | 6.3.1, 6.2.2 | cc:todo |
+| 6.3.3 | Moderation audit trail | Every moderation action recorded who / what / when | 6.3.1 | cc:todo |
+| 6.4.1 | Release checklist | Every milestone exit met, CI green, licenses + attribution verified | 6.1.3, 6.1.4, 6.2.1, 6.3.1 | cc:todo |
+| 6.4.2 | Tag v1.0.0 candidate | Version bumped + tagged v1.0.0 candidate; semver gate passes | 6.4.1 | cc:todo |
+| 6.4.3 | Open to community | Publish community links; only after end-to-end demonstrably works | 6.4.1, 6.4.2 | cc:todo |
 
-**M6 exit:** Works end-to-end (single-binary SQLite or hosted Postgres), community-ready, corpus seeded and vetted.
+**M6 exit:** the single-binary SQLite deployment runs the full ask→answer→verify→search→attribute loop end-to-end; guidelines + moderation enforce the scope boundary; v1.0.0 opens to community only after it demonstrably works.
 
 ---
 
