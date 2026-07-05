@@ -96,23 +96,75 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## M4 — search + read API (v0.4.0)
 
-- [ ] 4.1 `SearchIndexPort` impl (tag-facet + full-text; SQLite FTS / Postgres tsvector or Tantivy)
-- [ ] 4.2 Read-side projection (no writes to qa-core)
-- [ ] 4.3 Faceted query: tag × jurisdiction × date (surfaces staleness)
+- [ ] **4.1 `search` crate + projection wiring**
+  - [ ] 4.1.1 Wire `search` crate to qa-core's `SearchIndexPort` (read-side; depends on qa-core only, no write path back)
+  - [ ] 4.1.2 Index document schema (kind, body text, tags, jurisdiction, date, license, author, authority weight)
+  - [ ] 4.1.3 Projection subscriber: `notify_content_changed(IndexableContent)` → fetch aggregate from persistence → upsert/delete doc (idempotent)
+  - [ ] 4.1.4 Backfill/reproject path: rebuild full index from persistence (idempotent, resumable)
+- [ ] **4.2 `SearchIndexPort` full-text backends (dual, mirrors persistence split)**
+  - [ ] 4.2.1 SQLite FTS5 backend (constrained single-binary path)
+  - [ ] 4.2.2 Postgres tsvector backend (hosted path); Tantivy deferred + documented
+  - [ ] 4.2.3 Shared conformance suite run against both backends
+- [ ] **4.3 Faceted read query**
+  - [ ] 4.3.1 Parsed query input (term + tag/jurisdiction/date filters); illegal query unrepresentable
+  - [ ] 4.3.2 Facet counts: tag × jurisdiction × date buckets
+  - [ ] 4.3.3 Staleness surfacing via date/jurisdiction facets
+  - [ ] 4.3.4 Deterministic ranking (relevance × recency × authority weight); documented + tested
+- [ ] **4.4 Read-side integrity**
+  - [ ] 4.4.1 Read models: qa-core aggregates → serializable DTOs (no writes to qa-core)
+  - [ ] 4.4.2 Attribution non-strippable in every read model (source+author+license+date+link) — contract test
+  - [ ] 4.4.3 Architecture test extension: `search` has zero write path into qa-core
+
+**M4 exit:** content changes project into a dual-backend full-text index; faceted queries return tag×jurisdiction×date results that surface staleness; every mirrored result carries full attribution; search never writes to qa-core.
+
+---
 
 ## M5 — web client, minimal (v0.5.0)
 
-- [ ] 5.1 TS/pnpm client: ask, answer, vote, search
-- [ ] 5.2 Zod/Valibot at every API edge; branded types for ids
-- [ ] 5.3 Credential badge rendering with safety copy (badge ≠ medical advice)
-- [ ] 5.4 Attribution rendering for mirrored content
+- [ ] **5.1 pnpm client scaffold + typed API edges**
+  - [ ] 5.1.1 Client scaffold in `web` (pnpm workspace mirrors domain boundaries)
+  - [ ] 5.1.2 Zod/Valibot schemas at every I/O boundary (request + response), Parse-Don't-Validate
+  - [ ] 5.1.3 Branded id types (QuestionId/AnswerId/UserId); discriminated unions for `License` + `CredentialScope`
+  - [ ] 5.1.4 Typed API client derived from the read + write contracts
+- [ ] **5.2 Core flows**
+  - [ ] 5.2.1 Ask (create question)
+  - [ ] 5.2.2 Answer (create answer)
+  - [ ] 5.2.3 Vote incl. `StillValid` perishability signal
+  - [ ] 5.2.4 Search + faceted browse (tag × jurisdiction × date)
+- [ ] **5.3 Credential badge rendering**
+  - [ ] 5.3.1 Badge component from authority scope + weight
+  - [ ] 5.3.2 Safety copy: verification/engineering badge ≠ medical endorsement (non-dismissible)
+  - [ ] 5.3.3 Test: badge never renders as clinical advice; expired credential → no active badge
+- [ ] **5.4 Attribution rendering (mirrored content)**
+  - [ ] 5.4.1 Attribution component: source + author + license + date + link (non-strippable)
+  - [ ] 5.4.2 Test: every mirrored item renders all five fields; missing field ⇒ test fail
+  - [ ] 5.4.3 License-specific display (CC BY-SA / CC BY share-alike notice; `LinkOnly` = link-out, no body copy)
+
+**M5 exit:** a user can ask/answer/vote/search from the web client; ids and payloads are branded + schema-validated at every edge; credential badges carry non-dismissible safety copy; mirrored content always shows full attribution.
+
+---
 
 ## M6 — Works → Community (v1.0.0 candidate)
 
-- [ ] 6.1 Self-host single-binary (SQLite) path verified end-to-end
-- [ ] 6.2 Community guidelines (on-topic/scope from 0.4 finalized)
-- [ ] 6.3 Moderation tooling (close/flag, patient-advice rejection)
-- [ ] 6.4 **Only now**: open to community. Not before it demonstrably works.
+- [ ] **6.1 Single-binary self-host path**
+  - [ ] 6.1.1 Composition-root binary: qa-core + persistence-sqlite + identity-verification + search wired via DI
+  - [ ] 6.1.2 SQLite-only single-binary build (no external services)
+  - [ ] 6.1.3 End-to-end smoke: ask → answer → verify → search → attribution render
+  - [ ] 6.1.4 Release-profile CI green: `cargo-semver-checks` + `cargo-deny`
+- [ ] **6.2 Community guidelines**
+  - [ ] 6.2.1 Publish on-topic/scope (from 0.4) as community guidelines
+  - [ ] 6.2.2 Patient-advice-OUT boundary with worked examples
+  - [ ] 6.2.3 Contribution + attribution-preservation policy (CC BY-SA share-alike obligations)
+- [ ] **6.3 Moderation tooling**
+  - [ ] 6.3.1 Close/flag actions on questions + answers
+  - [ ] 6.3.2 Patient-advice rejection path (scope-boundary enforcement)
+  - [ ] 6.3.3 Moderation audit trail (who / what / when)
+- [ ] **6.4 Launch gate**
+  - [ ] 6.4.1 Release checklist: every milestone exit met, CI green, licenses + attribution verified
+  - [ ] 6.4.2 Tag v1.0.0 candidate
+  - [ ] 6.4.3 **Only now**: open to community — only after end-to-end demonstrably works
+
+**M6 exit:** the single-binary SQLite deployment runs the full ask→answer→verify→search→attribute loop end-to-end; guidelines + moderation enforce the scope boundary; v1.0.0 opens to community only after it demonstrably works.
 
 ---
 
