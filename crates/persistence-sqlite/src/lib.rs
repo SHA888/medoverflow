@@ -436,6 +436,8 @@ impl SqlitePersistence {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use qa_core::domain::license::License;
+    use std::time::SystemTime;
 
     #[test]
     fn test_sqlite_persist_and_retrieve_question() {
