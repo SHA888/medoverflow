@@ -82,7 +82,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 ## M3 — ingestion (license-aware bootstrap) (v0.3.0)
 
 - [ ] **3.1 `ContentSourcePort` adapters**
-  - [ ] 3.1.1 Stack Exchange dump parser (CC BY-SA) — Python/uv, emits parsed records
+  - [x] 3.1.1 Stack Exchange dump parser (CC BY-SA) — Python/uv, emits parsed records
   - [ ] 3.1.2 Biostars import (CC BY)
   - [ ] 3.1.3 FHIR Zulip adapter — **link records only**, asserts no body copied
 - [ ] **3.2 License enforcement**
