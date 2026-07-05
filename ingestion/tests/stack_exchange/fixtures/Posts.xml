@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<posts>
+  <row Id="1" PostTypeId="1" CreationDate="2016-01-05T14:16:20.240" Body="&lt;p&gt;How do I validate an HL7 v2 message?&lt;/p&gt;" OwnerUserId="8" Title="How do I validate an HL7 v2 message?" Tags="&lt;hl7&gt;&lt;interoperability&gt;" />
+  <row Id="2" PostTypeId="2" ParentId="1" CreationDate="2016-01-05T15:02:11.000" Body="&lt;p&gt;Use a schematron validator.&lt;/p&gt;" OwnerUserId="15" />
+  <row Id="3" PostTypeId="1" CreationDate="2018-03-02T09:00:00.000" Body="&lt;p&gt;What FHIR resources model an encounter?&lt;/p&gt;" OwnerDisplayName="anon-user" Title="What FHIR resources model an encounter?" Tags="fhir encounter" />
+  <row Id="4" PostTypeId="5" CreationDate="2016-01-01T00:00:00.000" Body="&lt;p&gt;Tag wiki body&lt;/p&gt;" OwnerUserId="8" />
+  <row Id="5" PostTypeId="2" ParentId="1" CreationDate="2016-01-06T00:00:00.000" OwnerUserId="8" />
+  <row Id="6" PostTypeId="2" ParentId="1" CreationDate="2016-01-07T00:00:00.000" Body="&lt;p&gt;Orphan answer, unknown author.&lt;/p&gt;" OwnerUserId="999" />
+</posts>

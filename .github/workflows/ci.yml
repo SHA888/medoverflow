@@ -75,7 +75,7 @@ jobs:
         if: ${{ hashFiles('web/.eslintrc*', 'web/eslint.config.*') != '' }}
 
   python:
-    name: Python (ruff, mypy)
+    name: Python (ruff, mypy, pytest)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -84,10 +84,9 @@ jobs:
         with:
           python-version: '3.11'
       - run: uv sync --directory ingestion
-      # ruff/mypy are not yet declared as dev dependencies of the ingestion
-      # project. `uv run --with` fetches them ephemerally so the lint gate is
-      # real (read-only, no --fix) without polluting the empty stub manifest.
       - name: ruff
-        run: uv run --directory ingestion --with ruff ruff check .
+        run: uv run --directory ingestion ruff check .
       - name: mypy
-        run: uv run --directory ingestion --with mypy mypy .
+        run: uv run --directory ingestion mypy .
+      - name: pytest
+        run: uv run --directory ingestion pytest -q

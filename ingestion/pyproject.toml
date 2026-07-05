@@ -7,7 +7,19 @@ name = "medoverflow-ingestion"
 version = "0.1.0"
 description = "MedOverflow license-aware import/ETL (Python)"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pydantic>=2,<3",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1,<2",
+    "pytest>=8,<9",
+    "ruff>=0.6,<1",
+]
 
 [tool.uv]
 # uv configuration for this project
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/medoverflow_ingestion"]
