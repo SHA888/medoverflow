@@ -14,8 +14,9 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from xml.etree import ElementTree as ET
+from xml.etree.ElementTree import Element
 
+import defusedxml.ElementTree as ET
 from pydantic import ValidationError
 
 from ..license import License
@@ -53,9 +54,7 @@ def parse_posts(
     """
     display_names = _load_display_names(users_xml_path)
 
-    for _, elem in ET.iterparse(posts_xml_path, events=("end",)):
-        if elem.tag != "row":
-            continue
+    for elem in _iter_rows(posts_xml_path):
         row_id = elem.get("Id", "<unknown>")
         try:
             yield _parse_row(
@@ -63,25 +62,38 @@ def parse_posts(
             )
         except (ValidationError, ValueError) as exc:
             yield SkippedRow(row_id=row_id, reason=str(exc))
-        finally:
-            elem.clear()
 
 
 def _load_display_names(users_xml_path: Path) -> dict[str, str]:
     names: dict[str, str] = {}
-    for _, elem in ET.iterparse(users_xml_path, events=("end",)):
-        if elem.tag != "row":
-            continue
+    for elem in _iter_rows(users_xml_path):
         user_id = elem.get("Id")
         display_name = elem.get("DisplayName")
         if user_id is not None and display_name:
             names[user_id] = display_name
-        elem.clear()
     return names
 
 
+def _iter_rows(xml_path: Path) -> Iterator[Element]:
+    """Stream `<row>` elements from an SE dump file with bounded memory use.
+
+    `elem.clear()` alone only empties the row element itself; it stays
+    attached to the document root, so the root's child list — and thus
+    memory use — would otherwise grow linearly with the file instead of
+    staying bounded. Clearing the root once each row has been consumed (not
+    just the row element) keeps memory bounded regardless of dump size.
+    """
+    context = iter(ET.iterparse(xml_path, events=("start", "end")))
+    _, root = next(context)  # the first event is always the root's start
+    for event, elem in context:
+        if event != "end" or elem.tag != "row":
+            continue
+        yield elem
+        root.clear()
+
+
 def _parse_row(
-    elem: ET.Element,
+    elem: Element,
     display_names: dict[str, str],
     *,
     site_name: str,

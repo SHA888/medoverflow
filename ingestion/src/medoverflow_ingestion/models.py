@@ -11,47 +11,42 @@ defaulted into a record; the parser turns them into a `SkippedRow` instead.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, HttpUrl, field_validator, model_validator
+from pydantic import AfterValidator, BaseModel, HttpUrl, model_validator
 
 from .license import License
+
+
+def _non_empty(v: str) -> str:
+    if not v.strip():
+        raise ValueError("field must not be empty")
+    return v
+
+
+NonEmptyStr = Annotated[str, AfterValidator(_non_empty)]
 
 
 class Attribution(BaseModel):
     """The five non-strippable fields required to render mirrored content."""
 
-    source: str
-    author: str
+    source: NonEmptyStr
+    author: NonEmptyStr
     license: License
     date: datetime
     link: HttpUrl
-
-    @field_validator("source", "author")
-    @classmethod
-    def _non_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("attribution field must not be empty")
-        return v
 
 
 class ParsedRecord(BaseModel):
     """A single imported question or answer, attributed to its source."""
 
-    record_id: str
+    record_id: NonEmptyStr
     kind: Literal["question", "answer"]
     title: str | None = None
-    body_html: str
+    body_html: NonEmptyStr
     tags: tuple[str, ...] = ()
     parent_id: str | None = None
     attribution: Attribution
-
-    @field_validator("record_id", "body_html")
-    @classmethod
-    def _non_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("field must not be empty")
-        return v
 
     @model_validator(mode="after")
     def _check_kind_shape(self) -> "ParsedRecord":

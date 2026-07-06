@@ -7,6 +7,7 @@ import pytest
 from medoverflow_ingestion.license import License
 from medoverflow_ingestion.models import ParsedRecord
 from medoverflow_ingestion.stack_exchange import SkippedRow, parse_posts
+from medoverflow_ingestion.stack_exchange.parser import _iter_rows
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SITE_NAME = "Health Informatics Stack Exchange"
@@ -104,3 +105,32 @@ def test_total_row_count_accounts_for_every_row() -> None:
     assert len(rows) == 6
     assert len(_records(rows)) == 3
     assert len(_skipped(rows)) == 3
+
+
+def test_iter_rows_keeps_document_root_bounded_across_many_rows(
+    tmp_path: Path,
+) -> None:
+    """Regression test: `elem.clear()` alone empties a row but leaves it
+    attached to the document root, so the root's child list — and memory
+    use — would grow linearly with the file instead of staying bounded.
+    `_iter_rows` must clear the root itself once each row is consumed.
+    """
+    row_count = 500
+    rows_xml = "".join(
+        f'<row Id="{i}" PostTypeId="1" CreationDate="2020-01-01T00:00:00.000" '
+        f'Body="&lt;p&gt;body {i}&lt;/p&gt;" OwnerUserId="1" Title="q{i}" />'
+        for i in range(row_count)
+    )
+    xml_path = tmp_path / "Posts.xml"
+    xml_path.write_text(f"<posts>{rows_xml}</posts>")
+
+    gen = _iter_rows(xml_path)
+    first = next(gen)
+    root = gen.gi_frame.f_locals["root"]  # type: ignore[attr-defined]
+    assert first.get("Id") == "0"
+
+    for _ in gen:
+        pass
+
+    # An unfixed implementation would leave all `row_count` rows attached.
+    assert len(list(root)) < 10
