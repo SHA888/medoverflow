@@ -3,6 +3,11 @@
 //! This crate implements the PersistencePort interface with a SQLite backend,
 //! providing durable storage for questions and answers with full round-trip fidelity.
 
+use persistence_common::{
+    credential_to_json, json_to_credential, json_to_tags, license_to_string, parts_to_system_time,
+    string_to_license, string_to_vote, system_time_to_parts, tags_to_json, vote_to_axis,
+    vote_to_string,
+};
 use qa_core::domain::answer::Answer;
 use qa_core::domain::body::Body;
 use qa_core::domain::id::{AnswerId, QuestionId, UserId};
@@ -11,11 +16,6 @@ use qa_core::domain::ports::{
 };
 use qa_core::domain::question::{Question, Revision};
 use qa_core::domain::vote::CastVote;
-use persistence_common::{
-    system_time_to_parts, parts_to_system_time, license_to_string, string_to_license,
-    tags_to_json, json_to_tags, credential_to_json, json_to_credential,
-    vote_to_string, vote_to_axis, string_to_vote,
-};
 use rusqlite::params;
 use rusqlite::{Connection, Result as SqliteResult};
 
@@ -103,11 +103,6 @@ impl SqlitePersistence {
     }
 }
 
-
-
-
-
-
 impl PersistencePort for SqlitePersistence {
     fn persist(&self, aggregate: PersistableAggregate) -> Result<(), PersistenceError> {
         match aggregate {
@@ -118,7 +113,9 @@ impl PersistencePort for SqlitePersistence {
 
     fn retrieve(&self, id: AggregateId) -> Result<PersistableAggregate, PersistenceError> {
         match id {
-            AggregateId::Question(qid) => self.retrieve_question(qid).map(PersistableAggregate::Question),
+            AggregateId::Question(qid) => self
+                .retrieve_question(qid)
+                .map(PersistableAggregate::Question),
             AggregateId::Answer(aid) => self.retrieve_answer(aid).map(PersistableAggregate::Answer),
         }
     }
@@ -140,13 +137,24 @@ impl SqlitePersistence {
             (id, current_body, author_id, created_at_secs, created_at_nanos, license, tags_json)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         "#,
-                params![id, current_body, author_id, created_at_secs, created_at_nanos, license, tags_json],
+                params![
+                    id,
+                    current_body,
+                    author_id,
+                    created_at_secs,
+                    created_at_nanos,
+                    license,
+                    tags_json
+                ],
             )
             .map_err(|e| PersistenceError::DatabaseError(e.to_string()))?;
 
         // Clear existing revisions for this question
         self.conn
-            .execute("DELETE FROM question_revisions WHERE question_id = ?", params![id])
+            .execute(
+                "DELETE FROM question_revisions WHERE question_id = ?",
+                params![id],
+            )
             .map_err(|e| PersistenceError::DatabaseError(e.to_string()))?;
 
         // Insert revisions
@@ -204,8 +212,8 @@ impl SqlitePersistence {
                 _ => PersistenceError::DatabaseError(e.to_string()),
             })?;
 
-        let current_body = Body::new(&question.0)
-            .map_err(|_| PersistenceError::SerializationError)?;
+        let current_body =
+            Body::new(&question.0).map_err(|_| PersistenceError::SerializationError)?;
         let author_id = UserId::new(question.1 as u64);
         let created_at = parts_to_system_time(question.2, question.3)?;
         let license = string_to_license(&question.4)?;
@@ -230,8 +238,7 @@ impl SqlitePersistence {
 
         let mut reconstructed_revisions = Vec::new();
         for (body_str, rev_secs, rev_nanos) in revisions {
-            let body =
-                Body::new(&body_str).map_err(|_| PersistenceError::SerializationError)?;
+            let body = Body::new(&body_str).map_err(|_| PersistenceError::SerializationError)?;
             let rev_time = parts_to_system_time(rev_secs, rev_nanos)?;
             reconstructed_revisions.push(Revision::new(body, rev_time));
         }
@@ -280,7 +287,10 @@ impl SqlitePersistence {
 
         // Clear existing revisions for this answer
         self.conn
-            .execute("DELETE FROM answer_revisions WHERE answer_id = ?", params![id])
+            .execute(
+                "DELETE FROM answer_revisions WHERE answer_id = ?",
+                params![id],
+            )
             .map_err(|e| PersistenceError::DatabaseError(e.to_string()))?;
 
         // Insert revisions
@@ -360,8 +370,8 @@ impl SqlitePersistence {
                 _ => PersistenceError::DatabaseError(e.to_string()),
             })?;
 
-        let current_body = Body::new(&answer_row.0)
-            .map_err(|_| PersistenceError::SerializationError)?;
+        let current_body =
+            Body::new(&answer_row.0).map_err(|_| PersistenceError::SerializationError)?;
         let author_id = UserId::new(answer_row.1 as u64);
         let created_at = parts_to_system_time(answer_row.2, answer_row.3)?;
         let license = string_to_license(&answer_row.4)?;
@@ -390,8 +400,7 @@ impl SqlitePersistence {
 
         let mut reconstructed_revisions = Vec::new();
         for (body_str, rev_secs, rev_nanos) in revisions {
-            let body =
-                Body::new(&body_str).map_err(|_| PersistenceError::SerializationError)?;
+            let body = Body::new(&body_str).map_err(|_| PersistenceError::SerializationError)?;
             let rev_time = parts_to_system_time(rev_secs, rev_nanos)?;
             reconstructed_revisions.push(Revision::new(body, rev_time));
         }

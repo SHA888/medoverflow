@@ -43,12 +43,7 @@ fn test_question_round_trip_simple() {
 fn test_question_with_tags() {
     let adapter = SqlitePersistence::new_memory().unwrap();
     let tags = vec![
-        Tag::new(
-            "rust",
-            "2025-06-14",
-            Jurisdiction::new("US").unwrap(),
-        )
-        .unwrap(),
+        Tag::new("rust", "2025-06-14", Jurisdiction::new("US").unwrap()).unwrap(),
         Tag::new(
             "async-await",
             "2025-06-15",
@@ -279,8 +274,12 @@ fn test_multiple_questions_independent() {
         vec![],
     );
 
-    adapter.persist(PersistableAggregate::Question(q1.clone())).ok();
-    adapter.persist(PersistableAggregate::Question(q2.clone())).ok();
+    adapter
+        .persist(PersistableAggregate::Question(q1.clone()))
+        .ok();
+    adapter
+        .persist(PersistableAggregate::Question(q2.clone()))
+        .ok();
 
     let retrieved_q1 = adapter
         .retrieve(AggregateId::Question(QuestionId::new(1)))

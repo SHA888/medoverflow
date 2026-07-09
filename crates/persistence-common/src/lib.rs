@@ -6,9 +6,9 @@
 
 use qa_core::domain::credential::AuthoritySnapshot;
 use qa_core::domain::license::License;
+use qa_core::domain::ports::PersistenceError;
 use qa_core::domain::tag::Tag;
 use qa_core::domain::vote::Vote;
-use qa_core::domain::ports::PersistenceError;
 use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
 
