@@ -20,12 +20,12 @@
 //! scope, callers must remove the user from higher-priority methods.
 
 use crate::{CredentialScope, VerifiedCredential};
+use qa_core::domain::credential::AuthoritySnapshot;
 use qa_core::domain::credential::AuthorityWeight;
 use qa_core::domain::id::UserId;
 use qa_core::domain::ports::CredentialPort;
-use qa_core::domain::credential::AuthoritySnapshot;
 use std::collections::{HashMap, HashSet};
-use std::time::{SystemTime, Duration};
+use std::time::{Duration, SystemTime};
 
 /// Convert from identity-verification's CredentialScope to qa-core's CredentialScope.
 fn to_qa_core_scope(scope: CredentialScope) -> qa_core::domain::credential::CredentialScope {
@@ -228,8 +228,7 @@ impl CredentialPort for GenericAdapter {
         let expiry = now + self.credential_duration;
 
         // Create a verified credential (in Issued state)
-        let credential = VerifiedCredential::issue(user_id_str, local_scope, expiry)
-            .ok()?;
+        let credential = VerifiedCredential::issue(user_id_str, local_scope, expiry).ok()?;
 
         // Activate the credential
         let active_credential = credential.activate(now).ok()?;
@@ -279,8 +278,8 @@ mod tests {
             scope: CredentialScope::Research,
         };
 
-        let mut adapter = GenericAdapter::new(Duration::from_secs(365 * 24 * 3600))
-            .with_institution(institution);
+        let mut adapter =
+            GenericAdapter::new(Duration::from_secs(365 * 24 * 3600)).with_institution(institution);
 
         adapter.register_institutional_email("456".to_string(), "user@mit.edu".to_string());
 
@@ -296,8 +295,8 @@ mod tests {
             scope: CredentialScope::Research,
         };
 
-        let mut adapter = GenericAdapter::new(Duration::from_secs(365 * 24 * 3600))
-            .with_institution(institution);
+        let mut adapter =
+            GenericAdapter::new(Duration::from_secs(365 * 24 * 3600)).with_institution(institution);
 
         adapter.register_institutional_email("456".to_string(), "user@stanford.edu".to_string());
 
@@ -314,10 +313,11 @@ mod tests {
             scope: CredentialScope::Research,
         };
 
-        let mut adapter = GenericAdapter::new(Duration::from_secs(365 * 24 * 3600))
-            .with_institution(institution);
+        let mut adapter =
+            GenericAdapter::new(Duration::from_secs(365 * 24 * 3600)).with_institution(institution);
 
-        adapter.register_institutional_email("456".to_string(), "invalid-email-no-domain".to_string());
+        adapter
+            .register_institutional_email("456".to_string(), "invalid-email-no-domain".to_string());
 
         let user_id = UserId::new(456);
         let snapshot = adapter.verify_credential(user_id);
@@ -359,7 +359,10 @@ mod tests {
         let user_id = UserId::new(999);
         let snapshot = adapter.verify_credential(user_id).expect("should verify");
         // ORCID scope (Engineering) should take precedence over institutional (Research)
-        assert_eq!(snapshot.scope(), qa_core::domain::credential::CredentialScope::Engineering);
+        assert_eq!(
+            snapshot.scope(),
+            qa_core::domain::credential::CredentialScope::Engineering
+        );
     }
 
     #[test]
@@ -400,15 +403,12 @@ mod tests {
             scope: CredentialScope::Research,
         };
 
-        let mut adapter = GenericAdapter::new(Duration::from_secs(365 * 24 * 3600))
-            .with_institution(institution);
+        let mut adapter =
+            GenericAdapter::new(Duration::from_secs(365 * 24 * 3600)).with_institution(institution);
 
         // Register many users
         for i in 0..1000 {
-            adapter.register_institutional_email(
-                i.to_string(),
-                format!("user{}@example.com", i),
-            );
+            adapter.register_institutional_email(i.to_string(), format!("user{}@example.com", i));
         }
 
         // Lookup should be fast (HashMap::get, not scan)

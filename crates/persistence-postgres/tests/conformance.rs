@@ -63,7 +63,9 @@ fn test_question_round_trip_simple() {
     );
 
     let aggregate = PersistableAggregate::Question(q.clone());
-    adapter.persist(aggregate).expect("Failed to persist question");
+    adapter
+        .persist(aggregate)
+        .expect("Failed to persist question");
 
     let retrieved = adapter
         .retrieve(AggregateId::Question(QuestionId::new(id)))
@@ -82,12 +84,7 @@ fn test_question_with_tags() {
 
     let id = unique_id();
     let tags = vec![
-        Tag::new(
-            "rust",
-            "2025-06-14",
-            Jurisdiction::new("US").unwrap(),
-        )
-        .unwrap(),
+        Tag::new("rust", "2025-06-14", Jurisdiction::new("US").unwrap()).unwrap(),
         Tag::new(
             "async-await",
             "2025-06-15",
@@ -344,8 +341,12 @@ fn test_multiple_questions_independent() {
         vec![],
     );
 
-    adapter.persist(PersistableAggregate::Question(q1.clone())).expect("Failed to persist question 1");
-    adapter.persist(PersistableAggregate::Question(q2.clone())).expect("Failed to persist question 2");
+    adapter
+        .persist(PersistableAggregate::Question(q1.clone()))
+        .expect("Failed to persist question 1");
+    adapter
+        .persist(PersistableAggregate::Question(q2.clone()))
+        .expect("Failed to persist question 2");
 
     let retrieved_q1 = adapter
         .retrieve(AggregateId::Question(QuestionId::new(id1)))

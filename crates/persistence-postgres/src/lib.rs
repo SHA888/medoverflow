@@ -5,6 +5,11 @@
 //! The schema mirrors the SQLite adapter (persistence-sqlite) so both adapters can
 //! be validated by the same conformance test suite (task 2.1.3).
 
+use persistence_common::{
+    credential_to_json, json_to_credential, json_to_tags, license_to_string, parts_to_system_time,
+    string_to_license, string_to_vote, system_time_to_parts, tags_to_json, vote_to_axis,
+    vote_to_string,
+};
 use postgres::{Client, NoTls};
 use qa_core::domain::answer::Answer;
 use qa_core::domain::body::Body;
@@ -14,11 +19,6 @@ use qa_core::domain::ports::{
 };
 use qa_core::domain::question::{Question, Revision};
 use qa_core::domain::vote::CastVote;
-use persistence_common::{
-    system_time_to_parts, parts_to_system_time, license_to_string, string_to_license,
-    tags_to_json, json_to_tags, credential_to_json, json_to_credential,
-    vote_to_string, vote_to_axis, string_to_vote,
-};
 use std::cell::RefCell;
 
 /// Postgres-backed persistence adapter.
@@ -102,11 +102,6 @@ impl PostgresPersistence {
             .map_err(|e| PersistenceError::DatabaseError(e.to_string()))
     }
 }
-
-
-
-
-
 
 impl PersistencePort for PostgresPersistence {
     fn persist(&self, aggregate: PersistableAggregate) -> Result<(), PersistenceError> {

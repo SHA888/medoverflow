@@ -92,6 +92,11 @@ impl Answer {
     /// Used by persistence adapters to restore state from durable storage.
     /// Validates that revision timestamps are monotonically non-decreasing and that votes
     /// are deduplicated per (voter, axis).
+    // An answer is reconstructed from its full set of stored fields (id, body, author,
+    // timestamp, license, credential snapshot, revisions, votes); each is an independent
+    // stored column, so bundling them into a params struct would only move the arity from
+    // the signature to the struct without reducing the persistence adapters' burden.
+    #[allow(clippy::too_many_arguments)]
     pub fn from_stored(
         id: AnswerId,
         current_body: Body,

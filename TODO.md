@@ -83,7 +83,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 - [ ] **3.1 `ContentSourcePort` adapters**
   - [x] 3.1.1 Stack Exchange dump parser (CC BY-SA) — Python/uv, emits parsed records
-  - [ ] 3.1.2 Biostars import (CC BY)
+  - [x] 3.1.2 Biostars import (CC BY) — Python/uv, emits parsed records with License::CcBy4
   - [ ] 3.1.3 FHIR Zulip adapter — **link records only**, asserts no body copied
 - [ ] **3.2 License enforcement**
   - [ ] 3.2.1 Quarantine partition (only if content license = Option B)
