@@ -167,12 +167,17 @@ def _resolve_link(url: str, *, site_url: str) -> str:
     The Link field is a patient-safety/legal boundary
     (`docs/ATTRIBUTION-RENDERING.md`): it must resolve to the real source
     post so the next reader can verify provenance. A relative `url` is
-    joined onto `site_url`; an absolute `url` is accepted only when it
-    points at `site_url`'s own host, otherwise it is rejected (a spoofed or
-    off-site absolute URL must not be rendered under the "Biostars" label).
+    joined onto `site_url`; an absolute `url` is accepted only when it is
+    `https://` *and* points at `site_url`'s own host, otherwise it is
+    rejected. A spoofed or off-site absolute URL must not be rendered under
+    the "Biostars" label, and an `http://` link is refused rather than
+    trusted (a protocol downgrade would let a MITM substitute content under
+    the same provenance boundary).
     """
     if not url.startswith(("http://", "https://")):
         return f"{site_url}/{url.lstrip('/')}"
+    if url.startswith("http://"):
+        raise ValueError(f"absolute url must use https, not http ({url!r})")
     if urlparse(url).netloc != urlparse(site_url).netloc:
         raise ValueError(
             f"absolute url host does not match site_url ({url!r} vs {site_url!r})"

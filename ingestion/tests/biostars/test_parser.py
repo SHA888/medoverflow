@@ -179,6 +179,25 @@ def test_offsite_absolute_url_is_rejected(tmp_path: Path) -> None:
     assert "host does not match" in _skipped(rows)[0].reason
 
 
+def test_http_absolute_url_is_rejected_as_protocol_downgrade(tmp_path: Path) -> None:
+    # An http:// link on the right host must still be refused: trusting it
+    # would let a MITM substitute content under the Biostars provenance label.
+    rows = _parse_inline(
+        tmp_path,
+        """
+        [
+          {
+            "id": 303, "title": "downgrade", "type": "Question", "author": "A",
+            "creation_date": "2020-01-01T00:00:00+00:00", "xhtml": "<p>b</p>",
+            "tag_val": "", "root_id": 303, "url": "http://www.biostars.org/p/303/"
+          }
+        ]
+        """,
+    )
+    assert _records(rows) == []
+    assert "must use https" in _skipped(rows)[0].reason
+
+
 def test_relative_url_is_joined_with_site_url(tmp_path: Path) -> None:
     posts_path = tmp_path / "posts.json"
     posts_path.write_text(
