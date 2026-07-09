@@ -261,10 +261,7 @@ impl SqlitePersistence {
         let author_id = answer.author_id().inner() as i64;
         let (created_at_secs, created_at_nanos) = system_time_to_parts(answer.created_at())?;
         let license = license_to_string(&answer.license());
-        let credential_json = answer
-            .credential()
-            .map(|c| credential_to_json(c))
-            .transpose()?;
+        let credential_json = answer.credential().map(credential_to_json).transpose()?;
 
         self.conn
             .execute(
