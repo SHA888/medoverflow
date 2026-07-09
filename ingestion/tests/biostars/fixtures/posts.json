@@ -1,0 +1,83 @@
+[
+  {
+    "id": 100,
+    "title": "How do I validate an HL7 v2 message?",
+    "type": "Question",
+    "type_id": 0,
+    "author": "Jane Doe",
+    "author_id": 8,
+    "creation_date": "2016-01-05T14:16:20.240000+00:00",
+    "xhtml": "<p>How do I validate an HL7 v2 message?</p>",
+    "tag_val": "hl7,interoperability",
+    "parent_id": null,
+    "root_id": 100,
+    "url": "https://www.biostars.org/p/100/"
+  },
+  {
+    "id": 101,
+    "title": "A: How do I validate an HL7 v2 message?",
+    "type": "Answer",
+    "type_id": 1,
+    "author": "John Smith",
+    "author_id": 15,
+    "creation_date": "2016-01-05T15:02:11.000000+00:00",
+    "xhtml": "<p>Use a schematron validator.</p>",
+    "tag_val": "",
+    "parent_id": 100,
+    "root_id": 100,
+    "url": "https://www.biostars.org/p/100/#101"
+  },
+  {
+    "id": 102,
+    "title": "What FHIR resources model an encounter?",
+    "type": "Question",
+    "type_id": 0,
+    "author": "anon-user",
+    "author_id": 42,
+    "creation_date": "2018-03-02T09:00:00.000000+00:00",
+    "xhtml": "<p>What FHIR resources model an encounter?</p>",
+    "tag_val": "fhir, encounter",
+    "parent_id": null,
+    "root_id": 102,
+    "url": "https://www.biostars.org/p/102/"
+  },
+  {
+    "id": 103,
+    "title": null,
+    "type": "Comment",
+    "type_id": 2,
+    "author": "Jane Doe",
+    "author_id": 8,
+    "creation_date": "2016-01-01T00:00:00.000000+00:00",
+    "xhtml": "<p>Comment body</p>",
+    "parent_id": 100,
+    "root_id": 100,
+    "url": "https://www.biostars.org/p/100/#103"
+  },
+  {
+    "id": 104,
+    "title": "A: How do I validate an HL7 v2 message?",
+    "type": "Answer",
+    "type_id": 1,
+    "author": "Jane Doe",
+    "author_id": 8,
+    "creation_date": "2016-01-06T00:00:00.000000+00:00",
+    "xhtml": "",
+    "parent_id": 100,
+    "root_id": 100,
+    "url": "https://www.biostars.org/p/100/#104"
+  },
+  {
+    "id": 105,
+    "title": "A: How do I validate an HL7 v2 message?",
+    "type": "Answer",
+    "type_id": 1,
+    "author": "",
+    "author_id": null,
+    "creation_date": "2016-01-07T00:00:00.000000+00:00",
+    "xhtml": "<p>Orphan answer, unknown author.</p>",
+    "parent_id": 100,
+    "root_id": 100,
+    "url": "https://www.biostars.org/p/100/#105"
+  }
+]
