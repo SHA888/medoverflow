@@ -76,7 +76,7 @@ Created: 2026-06-13
 | Task | Content | DoD | Depends | Status |
 |------|---------|-----|---------|--------|
 | 3.1.1 | Create Stack Exchange dump parser (CC BY-SA, Python/uv) | Parser: reads SE dump format, emits parsed records with License::CcBySa4; attribution fields populated | Phase 2 | cc:done [c4a3888] |
-| 3.1.2 | Create Biostars import adapter (CC BY) | Adapter: fetches/parses Biostars Q&A, emits records with License::CcBy4; attribution fields | 3.1.1 | cc:done [c47824f] |
+| 3.1.2 | Create Biostars import adapter (CC BY) | Adapter: fetches/parses Biostars Q&A, emits records with License::CcBy4; attribution fields | 3.1.1 | cc:done [3da303a] |
 | 3.1.3 | Create FHIR Zulip adapter — link records only, assert no body copied | Adapter: emits link records (title + URL + metadata); asserts no body copy; all records have License::LinkOnly | 3.1.1 | cc:todo |
 | 3.2.1 | Implement quarantine partition (if content license = Option B) | If CC BY 4.0 chosen: SA imports tagged with Quarantine::SaImport; rendering paths check partition boundary | Phase 0 (license choice), Phase 2 | cc:todo |
 | 3.2.2 | Test: attribution rendering always includes source+author+license | Test: every rendered mirrored item includes source, author, license inline; test fails if any stripped | 3.1.1, 3.1.2, 3.1.3 | cc:todo |
