@@ -75,3 +75,4 @@ temp/
 .claude/
 out/
 .harness-mem/state
+.harness-worktrees/
