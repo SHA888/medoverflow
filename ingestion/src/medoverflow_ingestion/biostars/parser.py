@@ -16,13 +16,14 @@ the question even for a reply nested under a comment.
 Unlike the Stack Exchange dump (a single multi-gigabyte XML export requiring
 streaming), a Biostars pull is expected to be a much smaller, pre-filtered
 JSON array (see task 3.2.3's topic filter), so this parser loads it whole.
+`biostars.client` is the companion module that fetches that JSON array live
+from the Biostars API; this module only parses it.
 """
 
 from __future__ import annotations
 
 import json
 from collections.abc import Iterator
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -31,23 +32,10 @@ from urllib.parse import urlparse
 from pydantic import ValidationError
 
 from ..license import License
-from ..models import Attribution, ParsedRecord
+from ..models import Attribution, ParsedRecord, SkippedRow
 
 _POST_TYPE_QUESTION = "Question"
 _POST_TYPE_ANSWER = "Answer"
-
-
-@dataclass(frozen=True)
-class SkippedRow:
-    """A dump row that could not be parsed into a `ParsedRecord`.
-
-    Kept as explicit data — never raised past the caller and never silently
-    dropped — so a full ingestion run can report every unparsed row instead
-    of aborting on the first bad one.
-    """
-
-    row_id: str
-    reason: str
 
 
 def parse_posts(

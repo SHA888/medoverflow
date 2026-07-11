@@ -1,4 +1,4 @@
-"""Shared parsed-record shapes for source-specific dump parsers.
+"""Shared parsed-record shapes for source-specific import adapters.
 
 Parse-Don't-Validate boundary: a `ParsedRecord` cannot be constructed without
 a complete, non-empty `Attribution` (source, author, license, date, link) per
@@ -10,6 +10,7 @@ defaulted into a record; the parser turns them into a `SkippedRow` instead.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, Literal
 
@@ -25,6 +26,19 @@ def _non_empty(v: str) -> str:
 
 
 NonEmptyStr = Annotated[str, AfterValidator(_non_empty)]
+
+
+@dataclass(frozen=True)
+class SkippedRow:
+    """A source row/payload that could not be parsed into a `ParsedRecord`.
+
+    Kept as explicit data — never raised past the caller and never silently
+    dropped — so a full ingestion run can report every unparsed row instead
+    of aborting on the first bad one.
+    """
+
+    row_id: str
+    reason: str
 
 
 class Attribution(BaseModel):

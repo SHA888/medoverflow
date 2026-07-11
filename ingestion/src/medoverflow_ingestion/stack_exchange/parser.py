@@ -11,7 +11,6 @@ notices, ...) are out of scope for the Q&A corpus and are skipped.
 from __future__ import annotations
 
 from collections.abc import Iterator
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from xml.etree.ElementTree import Element
@@ -20,23 +19,10 @@ import defusedxml.ElementTree as ET
 from pydantic import ValidationError
 
 from ..license import License
-from ..models import Attribution, ParsedRecord
+from ..models import Attribution, ParsedRecord, SkippedRow
 
 _POST_TYPE_QUESTION = "1"
 _POST_TYPE_ANSWER = "2"
-
-
-@dataclass(frozen=True)
-class SkippedRow:
-    """A dump row that could not be parsed into a `ParsedRecord`.
-
-    Kept as explicit data — never raised past the caller and never silently
-    dropped — so a full ingestion run can report every unparsed row instead
-    of aborting the whole dump on the first bad one.
-    """
-
-    row_id: str
-    reason: str
 
 
 def parse_posts(
