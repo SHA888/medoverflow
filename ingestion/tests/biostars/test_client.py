@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import json
+import threading
+import time
+from pathlib import Path
+
 import httpx
 import pytest
 
@@ -9,6 +14,8 @@ from medoverflow_ingestion.biostars.client import (
     BiostarsApiError,
     fetch_post,
     fetch_post_uids_for_tag,
+    fetch_posts,
+    fetch_posts_to_json,
 )
 
 BASE_URL = "https://www.biostars.org"
@@ -96,3 +103,63 @@ def test_requests_go_to_the_clients_own_base_url_not_a_hardcoded_default() -> No
         fetch_post_uids_for_tag(client, "some-tag")
 
     assert seen_hosts == ["mirror.example.org", "mirror.example.org"]
+
+
+def test_fetch_posts_returns_payloads_and_skips_failures() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        uid = request.url.path.rsplit("/", 2)[-2]
+        if uid == "missing":
+            return httpx.Response(200, json={})
+        return httpx.Response(200, json={"id": uid, "uid": uid, "type": "Question"})
+
+    with _client(httpx.MockTransport(handler)) as client:
+        payloads, skipped = fetch_posts(client, ["u1", "missing", "u2"])
+
+    assert {p["id"] for p in payloads} == {"u1", "u2"}
+    assert [s.row_id for s in skipped] == ["missing"]
+
+
+def test_fetch_posts_is_concurrent_not_sequential() -> None:
+    """Regression: fetches must overlap, not run one-at-a-time.
+
+    Each handler invocation records how many other invocations are in
+    flight at the same moment; a purely sequential fetch loop would never
+    see more than one in flight at once.
+    """
+    lock = threading.Lock()
+    in_flight = 0
+    max_in_flight = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal in_flight, max_in_flight
+        with lock:
+            in_flight += 1
+            max_in_flight = max(max_in_flight, in_flight)
+        time.sleep(0.05)
+        with lock:
+            in_flight -= 1
+        return httpx.Response(200, json={"id": 1, "uid": "u", "type": "Question"})
+
+    uids = [f"uid-{i}" for i in range(6)]
+    with _client(httpx.MockTransport(handler)) as client:
+        payloads, skipped = fetch_posts(client, uids, max_workers=6)
+
+    assert len(payloads) == 6
+    assert skipped == []
+    assert max_in_flight >= 2
+
+
+def test_fetch_posts_to_json_writes_only_successful_payloads(tmp_path: Path) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        uid = request.url.path.rsplit("/", 2)[-2]
+        if uid == "missing":
+            return httpx.Response(200, json={})
+        return httpx.Response(200, json={"id": uid, "uid": uid, "type": "Question"})
+
+    destination = tmp_path / "posts.json"
+    with _client(httpx.MockTransport(handler)) as client:
+        skipped = fetch_posts_to_json(client, ["u1", "missing", "u2"], destination)
+
+    written = json.loads(destination.read_text())
+    assert {p["id"] for p in written} == {"u1", "u2"}
+    assert [s.row_id for s in skipped] == ["missing"]
