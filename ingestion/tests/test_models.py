@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from medoverflow_ingestion.license import License
-from medoverflow_ingestion.models import Attribution, ParsedRecord
+from medoverflow_ingestion.models import Attribution, LinkRecord, ParsedRecord
 
 
 def _attribution(**overrides: object) -> Attribution:
@@ -105,3 +105,56 @@ def test_well_formed_question_and_answer_construct_cleanly() -> None:
         attribution=_attribution(),
     )
     assert answer.title is None
+
+
+def _link_attribution(**overrides: object) -> Attribution:
+    return _attribution(
+        source="FHIR Zulip",
+        license=License.LINK_ONLY,
+        link="https://chat.fhir.org/#narrow/stream/1-general/topic/hi",
+        **overrides,
+    )
+
+
+def test_link_record_has_no_body_field() -> None:
+    # "no body copied" (task 3.1.3's DoD) is asserted structurally: there is
+    # no field a body could ever be assigned to, not a runtime check.
+    assert not any("body" in name for name in LinkRecord.model_fields)
+
+
+def test_link_record_rejects_non_link_only_license() -> None:
+    with pytest.raises(ValidationError):
+        LinkRecord(
+            record_id="1",
+            title="A topic",
+            attribution=_attribution(),  # defaults to CC_BY_SA_4
+        )
+
+
+def test_link_record_rejects_empty_title() -> None:
+    with pytest.raises(ValidationError):
+        LinkRecord(record_id="1", title="  ", attribution=_link_attribution())
+
+
+def test_link_record_rejects_extra_body_field() -> None:
+    # Guards the structural "no body copied" guarantee against a caller
+    # mistake: pydantic's default extra-field handling would otherwise
+    # silently drop an accidental body_html= kwarg instead of rejecting it.
+    with pytest.raises(ValidationError):
+        LinkRecord(
+            record_id="1",
+            title="A topic",
+            attribution=_link_attribution(),
+            body_html="<p>should never be accepted</p>",  # type: ignore[call-arg]
+        )
+
+
+def test_well_formed_link_record_constructs_cleanly() -> None:
+    record = LinkRecord(
+        record_id="1",
+        title="A topic",
+        tags=("general",),
+        attribution=_link_attribution(),
+    )
+    assert record.attribution.license == License.LINK_ONLY
+    assert record.tags == ("general",)

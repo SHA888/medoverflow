@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import AfterValidator, BaseModel, HttpUrl, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, HttpUrl, model_validator
 
 from .license import License
 
@@ -76,4 +76,34 @@ class ParsedRecord(BaseModel):
                 raise ValueError(
                     "an answer record must have a parent_id (its question's id)"
                 )
+        return self
+
+
+class LinkRecord(BaseModel):
+    """A link-only reference to external content that is never copied.
+
+    Unlike `ParsedRecord`, this has no body field at all: for a
+    `License.LINK_ONLY` source (task 3.1.3's FHIR Zulip adapter), "the body
+    is never copied" is a structural guarantee — there is no field a body
+    could be assigned to — rather than a runtime check that a future edit
+    could accidentally bypass. `extra="forbid"` makes that guarantee hold
+    against a caller too: without it, pydantic's default behavior would
+    silently drop an accidental `body_html=...` kwarg instead of rejecting
+    it, masking exactly the mistake this model exists to make impossible.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    record_id: NonEmptyStr
+    title: NonEmptyStr
+    tags: tuple[str, ...] = ()
+    attribution: Attribution
+
+    @model_validator(mode="after")
+    def _check_link_only_license(self) -> "LinkRecord":
+        if self.attribution.license != License.LINK_ONLY:
+            raise ValueError(
+                "a LinkRecord must carry License.LINK_ONLY attribution, got "
+                f"{self.attribution.license!r}"
+            )
         return self

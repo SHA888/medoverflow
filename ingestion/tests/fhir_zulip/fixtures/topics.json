@@ -1,0 +1,65 @@
+[
+  {
+    "id": "5001",
+    "stream": "terminology",
+    "topic": "SNOMED CT mapping for lab panels",
+    "sender_full_name": "Amara Chen",
+    "timestamp": 1704067200,
+    "url": "https://chat.fhir.org/#narrow/stream/179-terminology/topic/SNOMED.20CT.20mapping.20for.20lab.20panels"
+  },
+  {
+    "id": "5002",
+    "stream": "implementers",
+    "topic": "Bulk export NDJSON pagination",
+    "sender_full_name": "Raj Patel",
+    "timestamp": 1706745600,
+    "url": "https://chat.fhir.org/#narrow/stream/179-implementers/topic/Bulk.20export.20NDJSON.20pagination"
+  },
+  {
+    "id": "",
+    "stream": "terminology",
+    "topic": "missing id",
+    "sender_full_name": "Nobody",
+    "timestamp": 1704067200,
+    "url": "https://chat.fhir.org/#narrow/stream/179-terminology/topic/missing.20id"
+  },
+  {
+    "id": "5003",
+    "stream": "terminology",
+    "topic": "",
+    "sender_full_name": "Nobody",
+    "timestamp": 1704067200,
+    "url": "https://chat.fhir.org/#narrow/stream/179-terminology/topic/missing.20topic"
+  },
+  {
+    "id": "5004",
+    "stream": "terminology",
+    "topic": "missing sender",
+    "sender_full_name": "",
+    "timestamp": 1704067200,
+    "url": "https://chat.fhir.org/#narrow/stream/179-terminology/topic/missing.20sender"
+  },
+  {
+    "id": "5005",
+    "stream": "terminology",
+    "topic": "missing timestamp",
+    "sender_full_name": "Nobody",
+    "url": "https://chat.fhir.org/#narrow/stream/179-terminology/topic/missing.20timestamp"
+  },
+  {
+    "id": "5006",
+    "stream": "terminology",
+    "topic": "offsite url",
+    "sender_full_name": "Nobody",
+    "timestamp": 1704067200,
+    "url": "https://evil.example.com/#narrow/stream/179-terminology/topic/offsite"
+  },
+  {
+    "id": "5007",
+    "stream": "terminology",
+    "topic": "http downgrade",
+    "sender_full_name": "Nobody",
+    "timestamp": 1704067200,
+    "url": "http://chat.fhir.org/#narrow/stream/179-terminology/topic/downgrade"
+  }
+]
